@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>할 일 관리</title>
+  <script>
+    // 첫 화면이 깜빡이지 않도록 저장된 테마를 먼저 적용한다
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a href="#todo-input" class="skip-link">입력창으로 바로 가기</a>
+  <div class="app">
+    <header class="app-header">
+      <h1>할 일 관리</h1>
+      <div class="header-right">
+        <time id="today" class="today"></time>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">다크 모드</button>
+      </div>
+    </header>
+
+    <!-- 본문(입력창·목록)을 소스 순서상 먼저 두어 Tab 키가 입력창에 빨리 닿게 한다.
+         화면에서는 CSS order로 사이드바를 왼쪽/위쪽에 보여준다 -->
+    <div class="layout">
+      <main class="main card">
+        <div class="date-nav">
+          <button type="button" id="date-prev" class="small-btn" aria-label="이전 날짜">◀</button>
+          <input type="date" id="date-input" aria-label="날짜 선택">
+          <button type="button" id="date-next" class="small-btn" aria-label="다음 날짜">▶</button>
+          <button type="button" id="date-today" class="small-btn">오늘</button>
+          <span id="date-label" class="date-label" aria-live="polite"></span>
+          <button type="button" id="carry-over" class="small-btn carry-over" hidden>미완료 항목 오늘로 가져오기</button>
+        </div>
+
+        <form id="todo-form" class="todo-form" autocomplete="off">
+          <input id="todo-input" type="text" maxlength="100" placeholder="할 일을 입력하세요...  ( / 키로 바로 입력 )" data-placeholder-today="할 일을 입력하세요...  ( / 키로 바로 입력 )" aria-label="할 일 입력" aria-keyshortcuts="/" autofocus>
+          <select id="todo-category" aria-label="카테고리"></select>
+          <button type="submit">추가</button>
+        </form>
+
+        <ul id="todo-list" class="todo-list"></ul>
+
+        <p id="empty-message" class="empty-message">오늘 할 일을 추가해 보세요</p>
+
+        <div class="list-footer">
+          <button type="button" id="clear-done" class="clear-done" disabled>완료 항목 삭제</button>
+        </div>
+      </main>
+
+      <aside class="sidebar">
+        <section class="progress card" aria-label="진행률">
+          <h2 id="progress-title" class="section-title">오늘의 진행률</h2>
+          <div class="progress-row">
+            <span class="progress-label">전체</span>
+            <span id="progress-text" class="progress-text">0/0 완료 (0%)</span>
+          </div>
+          <div id="progress-bar" class="progress-bar" role="progressbar" aria-label="진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="progress-fill" class="progress-fill"></div></div>
+          <p id="progress-categories" class="progress-categories"></p>
+        </section>
+
+        <nav class="filters card" aria-label="카테고리 필터">
+          <h2 class="section-title">카테고리</h2>
+          <div id="filter-list" class="filter-list"></div>
+        </nav>
+
+        <!-- 자주 안 쓰는 설정은 접어 두어 사이드바가 화면 높이를 넘지 않게 한다 -->
+        <details id="category-manager" class="category-manager card">
+          <summary>설정 · 카테고리 / 백업</summary>
+          <h2 class="section-title sub-title">카테고리 관리</h2>
+          <ul id="category-list" class="category-list"></ul>
+          <form id="category-form" class="category-form" autocomplete="off">
+            <input id="new-category-name" type="text" maxlength="10" placeholder="새 카테고리 이름" aria-label="새 카테고리 이름">
+            <select id="new-category-color" aria-label="카테고리 색상"></select>
+            <button type="submit">추가</button>
+          </form>
+
+          <div class="data-section">
+            <h2 class="section-title sub-title">데이터 백업</h2>
+            <div class="data-actions">
+              <button type="button" id="export-btn" class="small-btn">내보내기</button>
+              <button type="button" id="import-btn" class="small-btn">가져오기</button>
+              <input type="file" id="import-file" accept="application/json,.json" hidden>
+            </div>
+          </div>
+        </details>
+      </aside>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

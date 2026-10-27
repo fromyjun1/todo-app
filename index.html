@@ -4,52 +4,75 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>할 일 관리</title>
+  <script>
+    // 첫 화면이 깜빡이지 않도록 저장된 테마를 먼저 적용한다
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="app">
     <header class="app-header">
       <h1>할 일 관리</h1>
-      <time id="today" class="today"></time>
+      <div class="header-right">
+        <time id="today" class="today"></time>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">다크 모드</button>
+      </div>
     </header>
 
     <section class="progress" aria-label="진행률">
       <div class="progress-row">
-        <span class="progress-label">전체 진행률</span>
-        <span id="progress-text" class="progress-text">0 / 0 (0%)</span>
+        <span id="progress-title" class="progress-label">오늘의 진행률</span>
+        <span id="progress-text" class="progress-text">0/0 완료 (0%)</span>
       </div>
-      <div id="progress-bar" class="progress-bar" role="progressbar" aria-label="전체 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="progress-fill" class="progress-fill"></div></div>
-      <p id="progress-categories" class="progress-categories">
-        <span class="cat-work">업무 0/0</span> ·
-        <span class="cat-personal">개인 0/0</span> ·
-        <span class="cat-study">공부 0/0</span>
-      </p>
+      <div id="progress-bar" class="progress-bar" role="progressbar" aria-label="진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="progress-fill" class="progress-fill"></div></div>
+      <p id="progress-categories" class="progress-categories"></p>
     </section>
+
+    <div class="date-nav">
+      <button type="button" id="date-prev" class="small-btn" aria-label="이전 날짜">◀</button>
+      <input type="date" id="date-input" aria-label="날짜 선택">
+      <button type="button" id="date-next" class="small-btn" aria-label="다음 날짜">▶</button>
+      <button type="button" id="date-today" class="small-btn">오늘</button>
+      <span id="date-label" class="date-label" aria-live="polite"></span>
+      <button type="button" id="carry-over" class="small-btn carry-over" hidden>미완료 항목 오늘로 가져오기</button>
+    </div>
 
     <form id="todo-form" class="todo-form" autocomplete="off">
       <input id="todo-input" type="text" maxlength="100" placeholder="할 일을 입력하세요..." aria-label="할 일 입력">
-      <select id="todo-category" aria-label="카테고리">
-        <option value="work">업무</option>
-        <option value="personal">개인</option>
-        <option value="study">공부</option>
-      </select>
+      <select id="todo-category" aria-label="카테고리"></select>
       <button type="submit">추가</button>
     </form>
 
     <nav class="filters" aria-label="카테고리 필터">
-      <button type="button" class="filter active" data-filter="all">전체</button>
-      <button type="button" class="filter" data-filter="work">업무</button>
-      <button type="button" class="filter" data-filter="personal">개인</button>
-      <button type="button" class="filter" data-filter="study">공부</button>
+      <div id="filter-list" class="filter-list"></div>
     </nav>
 
     <ul id="todo-list" class="todo-list"></ul>
 
+    <p id="empty-message" class="empty-message">오늘 할 일을 추가해 보세요</p>
+
     <div class="list-footer">
+      <div class="data-actions">
+        <button type="button" id="export-btn" class="small-btn">내보내기</button>
+        <button type="button" id="import-btn" class="small-btn">가져오기</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+      </div>
       <button type="button" id="clear-done" class="clear-done" disabled>완료 항목 삭제</button>
     </div>
 
-    <p id="empty-message" class="empty-message">오늘 할 일을 추가해 보세요</p>
+    <details id="category-manager" class="category-manager">
+      <summary>카테고리 관리</summary>
+      <ul id="category-list" class="category-list"></ul>
+      <form id="category-form" class="category-form" autocomplete="off">
+        <input id="new-category-name" type="text" maxlength="10" placeholder="새 카테고리 이름" aria-label="새 카테고리 이름">
+        <select id="new-category-color" aria-label="카테고리 색상"></select>
+        <button type="submit">추가</button>
+      </form>
+    </details>
   </main>
 
   <script src="app.js"></script>
