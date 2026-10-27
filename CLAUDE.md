@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The app is implemented (`index.html`, `style.css`, `app.js`) from `PRD.md` (Korean, Draft v1). There is no build, lint, or test tooling. Where the code deliberately differs from the PRD: localStorage key is `"todos"` (not `todo-app:v1`) holding a bare array, items use `completed` (not `done`), the active filter is in-memory only (not persisted), and completed items sort below incomplete ones.
 
+Auto-categorization: typing in the add input pre-selects the category dropdown via `classifyText()` using `CATEGORY_KEYWORDS` in `app.js` (most keyword matches wins; no match or a tie leaves the dropdown unchanged). Once the user changes the dropdown manually, auto-selection stops for that item and resets after adding. It only applies to the add form, not inline edit.
+
 ## Constraints (from the PRD)
 
 - Plain HTML + CSS + Vanilla JS (ES6+) only. No frameworks, no build tools, no backend, no external libraries.

@@ -2,6 +2,25 @@ const STORAGE_KEY = 'todos';
 const MAX_LENGTH = 100;
 const CATEGORY_LABELS = { work: '업무', personal: '개인', study: '공부' };
 
+// 자동 분류용 키워드 (소문자 비교, 부분 일치)
+const CATEGORY_KEYWORDS = {
+  work: [
+    '회의', '미팅', '보고서', '업무', '프로젝트', '발표', '메일', '출장', '계약', '견적',
+    '기획', '마감', '클라이언트', '고객', '회사', '야근', '결재', '거래처', '인수인계',
+    'meeting', 'report', 'deadline', 'email', 'client', 'project',
+  ],
+  personal: [
+    '장보기', '병원', '운동', '청소', '빨래', '세탁', '약속', '은행', '택배', '가족', '친구',
+    '생일', '여행', '예약', '쇼핑', '요리', '산책', '헬스', '마트', '설거지', '미용실',
+    'gym', 'shopping', 'dinner',
+  ],
+  study: [
+    '공부', '시험', '강의', '수업', '숙제', '과제', '독서', '영어', '단어', '복습', '예습',
+    '자격증', '토익', '문제집', '인강', '코딩', '암기',
+    'study', 'homework', 'exam', 'lecture',
+  ],
+};
+
 const todayEl = document.getElementById('today');
 const formEl = document.getElementById('todo-form');
 const inputEl = document.getElementById('todo-input');
@@ -235,6 +254,7 @@ function addTodo() {
   saveTodos();
   render();
 
+  categoryChosenByUser = false; // 다음 항목은 다시 자동 분류
   inputEl.value = '';
   inputEl.focus();
 }
@@ -294,6 +314,39 @@ function saveEditFrom(li) {
   const category = li.querySelector('.edit-category').value;
   if (!updateTodo(li.dataset.id, input.value, category)) input.focus();
 }
+
+// 키워드가 가장 많이 일치한 카테고리를 반환. 일치가 없거나 동점이면 null
+function classifyText(text) {
+  const lower = text.toLowerCase();
+  let best = null;
+  let bestScore = 0;
+  let tied = false;
+  Object.entries(CATEGORY_KEYWORDS).forEach(([category, words]) => {
+    const score = words.filter((w) => lower.includes(w)).length;
+    if (score > bestScore) {
+      best = category;
+      bestScore = score;
+      tied = false;
+    } else if (score === bestScore && score > 0) {
+      tied = true;
+    }
+  });
+  return tied ? null : best;
+}
+
+// 입력 중 카테고리를 자동 선택한다. 사용자가 직접 고른 뒤에는 건드리지 않는다
+let categoryChosenByUser = false;
+
+inputEl.addEventListener('input', () => {
+  if (categoryChosenByUser) return;
+  const guess = classifyText(inputEl.value);
+  if (guess) categoryEl.value = guess;
+});
+
+// change는 사용자가 직접 바꿀 때만 발생 (코드로 value를 바꾸면 발생하지 않음)
+categoryEl.addEventListener('change', () => {
+  categoryChosenByUser = true;
+});
 
 // 버튼 클릭과 Enter 모두 submit 이벤트로 처리
 formEl.addEventListener('submit', (e) => {
